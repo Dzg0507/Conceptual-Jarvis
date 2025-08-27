@@ -1,0 +1,33 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.highlight-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Make sure the SVG itself is click-through */
+}
+
+.draw-circle {
+    stroke: rgba(255, 0, 0, 0.9);
+    stroke-width: 4px;
+    fill: transparent;
+    stroke-linecap: round;
+    animation: draw 0.7s ease-out forwards;
+}
+
+@keyframes draw {
+    from {
+        stroke-dasharray: 0, 1000; /* Start with no dash, long gap */
+    }
+    to {
+        stroke-dasharray: 1000, 1000; /* End with a long dash, long gap */
+    }
+}

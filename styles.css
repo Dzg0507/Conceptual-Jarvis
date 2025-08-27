@@ -1,0 +1,104 @@
+:root {
+    --retracted-width: 60px;
+    --retracted-height: 60px;
+    --expanded-width: 400px;
+    --expanded-height: 200px;
+    --animation-speed: 0.3s;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+}
+
+#app-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: var(--retracted-width);
+    height: var(--retracted-height);
+    background-color: rgba(20, 20, 20, 0.8);
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all var(--animation-speed) ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#app-container:hover {
+    width: var(--expanded-width);
+    height: var(--expanded-height);
+    border-radius: 15px;
+}
+
+#drag-bar {
+    height: 20px;
+    width: 100%;
+    -webkit-app-region: drag;
+    position: absolute;
+    top: 0;
+}
+
+#content {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    transition-delay: 0.1s;
+    width: 100%;
+    height: calc(100% - 20px); /* Adjust for drag bar */
+    padding: 20px 20px 0 20px; /* Add top padding for drag bar */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#app-container:hover #content {
+    opacity: 1;
+}
+
+#conversation-view {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    padding: 8px 12px;
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+    color: white;
+}
+
+.user-message {
+    background-color: #007bff;
+    align-self: flex-end;
+}
+
+.ai-message {
+    background-color: rgba(255, 255, 255, 0.2);
+    align-self: flex-start;
+}
+
+#prompt-input {
+    width: 100%;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    padding: 0 15px;
+    font-size: 16px;
+    outline: none;
+}
+
+#prompt-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
