@@ -69,9 +69,14 @@ function createOverlayWindow(bounds) {
 app.whenReady().then(() => {
   createWindow();
 
+  // --- State Management for Window Modes ---
+  let isPassthrough = false;
+  let isMoveMode = false;
+
   // --- Global Hotkey for Passthrough Toggle ---
-  let isPassthrough = false; // Initial state is interactive
-  const ret = globalShortcut.register('Alt+Shift+P', () => {
+  globalShortcut.register('Alt+Shift+P', () => {
+    if (isMoveMode) return; // Disable passthrough toggle while in move mode
+
     isPassthrough = !isPassthrough;
     if (mainWindow) {
       mainWindow.setIgnoreMouseEvents(isPassthrough, { forward: true });
@@ -80,9 +85,21 @@ app.whenReady().then(() => {
     }
   });
 
-  if (!ret) {
-    console.log('Failed to register global shortcut Alt+Shift+P');
-  }
+  // --- Global Hotkey for Move Mode Toggle ---
+  globalShortcut.register('Alt+Shift+M', () => {
+    isMoveMode = !isMoveMode;
+    mainWindow.webContents.send('toggle-move-mode', isMoveMode);
+
+    if (isMoveMode) {
+      // Entering move mode, so ensure the window is interactive
+      mainWindow.setIgnoreMouseEvents(false);
+      console.log('Move mode: ACTIVATED');
+    } else {
+      // Exiting move mode, so restore the original passthrough state
+      mainWindow.setIgnoreMouseEvents(isPassthrough, { forward: true });
+      console.log('Move mode: DEACTIVATED');
+    }
+  });
 
   ipcMain.handle('capture-screen', async (event, prompt) => {
     try {

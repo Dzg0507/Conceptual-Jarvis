@@ -17,6 +17,11 @@ function addMessage(text, sender) {
   conversationView.scrollTop = conversationView.scrollHeight;
 }
 
+// --- IPC Listeners ---
+window.electronAPI.onToggleMoveMode((isMoveMode) => {
+    appContainer.classList.toggle('move-mode', isMoveMode);
+});
+
 // --- Form submission handler ---
 promptForm.addEventListener('submit', async (e) => {
     e.preventDefault();
