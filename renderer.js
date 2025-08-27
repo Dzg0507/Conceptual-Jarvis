@@ -17,16 +17,6 @@ function addMessage(text, sender) {
   conversationView.scrollTop = conversationView.scrollHeight;
 }
 
-// --- Event Listeners for window behavior ---
-appContainer.addEventListener('mouseenter', () => {
-  window.electronAPI.setIgnoreMouseEvents(false);
-});
-
-appContainer.addEventListener('mouseleave', () => {
-  // When the mouse leaves, it becomes click-through again
-  window.electronAPI.setIgnoreMouseEvents(true, { forward: true });
-});
-
 // --- Form submission handler ---
 promptForm.addEventListener('submit', async (e) => {
     e.preventDefault();

@@ -1,11 +1,13 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer } = require('electron');
+const { app, BrowserWindow, ipcMain, desktopCapturer, globalShortcut } = require('electron');
 const path = require('path');
 const { getAIResponse } = require('./src/ai.js');
 const automation = require('./src/automation.js');
 
+let mainWindow; // Make mainWindow accessible in the module scope
+
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 300,
     height: 80,
     x: 100,
@@ -23,16 +25,7 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile('index.html');
 
-  // Start with passthrough
-  mainWindow.setIgnoreMouseEvents(true, { forward: true });
-
-  ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win.setIgnoreMouseEvents(ignore, options);
-  });
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  // Window starts as interactive by default. No passthrough logic here anymore.
 }
 
 function createOverlayWindow(bounds) {
@@ -57,7 +50,7 @@ function createOverlayWindow(bounds) {
   });
 
   overlayWindow.loadFile('overlay.html');
-  overlayWindow.setIgnoreMouseEvents(true);
+  overlayWindow.setIgnoreMouseEvents(true); // Overlay is always click-through
 
   overlayWindow.webContents.on('did-finish-load', () => {
     overlayWindow.webContents.send('draw-highlight', bounds);
@@ -75,6 +68,21 @@ function createOverlayWindow(bounds) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow();
+
+  // --- Global Hotkey for Passthrough Toggle ---
+  let isPassthrough = false; // Initial state is interactive
+  const ret = globalShortcut.register('Alt+Shift+P', () => {
+    isPassthrough = !isPassthrough;
+    if (mainWindow) {
+      mainWindow.setIgnoreMouseEvents(isPassthrough, { forward: true });
+      const mode = isPassthrough ? 'PASSTHROUGH' : 'INTERACTIVE';
+      console.log(`Passthrough mode toggled via hotkey: ${mode}`);
+    }
+  });
+
+  if (!ret) {
+    console.log('Failed to register global shortcut Alt+Shift+P');
+  }
 
   ipcMain.handle('capture-screen', async (event, prompt) => {
     try {
@@ -154,4 +162,9 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
+});
+
+// Unregister all shortcuts when the application is about to quit.
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
 });
